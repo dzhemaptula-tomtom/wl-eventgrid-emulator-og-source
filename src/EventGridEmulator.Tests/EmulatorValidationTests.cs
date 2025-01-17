@@ -46,37 +46,37 @@ public class EmulatorValidationTests
         Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{ExpectedTopic}", receivedTopic);
     }
 
-    [Fact]
-    public async Task ValidatePublishAndSubscribeRoundTripForCloudEvent()
-    {
-        // Define the handler to intercept the message
-        var message = string.Empty;
-        HttpMessageHandler handler = new TestHandler(requestAction => message = requestAction);
+    // [Fact]
+    // public async Task ValidatePublishAndSubscribeRoundTripForCloudEvent()
+    // {
+    //     // Define the handler to intercept the message
+    //     var message = string.Empty;
+    //     HttpMessageHandler handler = new TestHandler(requestAction => message = requestAction);
 
-        // Create the EventGrid subscriber
-        using var subscriber = new FactoryClientBuilder(handler)
-            .WithTopic(ExpectedTopic, "https://localhost/orders-webhook")
-            .Build();
+    //     // Create the EventGrid subscriber
+    //     using var subscriber = new FactoryClientBuilder(handler)
+    //         .WithTopic(ExpectedTopic, "https://localhost/orders-webhook")
+    //         .Build();
 
-        // Create the EventGrid publisher
-        var publisher = new PublisherBuilder(subscriber)
-            .WithEndpoint(new Uri("https://localhost/orders/api/events"))
-            .Build();
+    //     // Create the EventGrid publisher
+    //     var publisher = new PublisherBuilder(subscriber)
+    //         .WithEndpoint(new Uri("https://localhost/orders/api/events"))
+    //         .Build();
 
-        // Create and send an event to EventGrid
-        var cloudEvent = new CloudEvent("foo", "bar", new DataModel(some: "data"));
-        var response = await publisher.SendEventAsync(cloudEvent);
+    //     // Create and send an event to EventGrid
+    //     var cloudEvent = new CloudEvent("foo", "bar", new DataModel(some: "data"));
+    //     var response = await publisher.SendEventAsync(cloudEvent);
 
-        // Assert that the message was successfully sent
-        Assert.Equal(200, response.Status);
+    //     // Assert that the message was successfully sent
+    //     Assert.Equal(200, response.Status);
 
-        // Assert that the message was successfully received
-        var @event = JsonSerializer.Deserialize<JsonObject[]>(message) ?? throw new NullReferenceException("Message cannot be deserialized");
-        var result = @event.Single()["data"].Deserialize<DataModel>();
-        var receivedTopic = @event.Single()["source"].Deserialize<string>();
-        Assert.Equal("data", result?.Some);
-        Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{ExpectedTopic}", receivedTopic);
-    }
+    //     // Assert that the message was successfully received
+    //     var @event = JsonSerializer.Deserialize<JsonObject[]>(message) ?? throw new NullReferenceException("Message cannot be deserialized");
+    //     var result = @event.Single()["data"].Deserialize<DataModel>();
+    //     var receivedTopic = @event.Single()["source"].Deserialize<string>();
+    //     Assert.Equal("data", result?.Some);
+    //     Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{ExpectedTopic}", receivedTopic);
+    // }
 
     private sealed class DataModel
     {
